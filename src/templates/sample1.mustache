@@ -1,0 +1,13 @@
+{{!
+string username
+string message
+array ingredients
+}}
+<h2>Dear {{{ username }}}</h2>
+<div>{{{ message }}}</div>
+
+<ul class="ingredient-list">
+	{{#ingredients}}
+	<li>{{{ ingredients }}}</li>
+	{{/ingredients}}
+</ul>

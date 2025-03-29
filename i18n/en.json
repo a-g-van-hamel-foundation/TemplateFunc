@@ -1,0 +1,15 @@
+{
+		"@metadata": {
+			"authors": [
+				"Dennis Groenewegen",
+				"Marijn van Wezel (WSRecursiveParser)"
+			]
+		},
+		"tf-extensionname": "TemplateFunc",
+		"tf-desc": "Lets you fetch data from wiki templates or JSON (including multiple instances) in wiki pages and assign them, optionally along with custom data, to wiki templates, Mustache templates, Lua modules or Smarty widgets.",
+		"templatefunc": "TemplateFunc",
+		"templatefunc-tracking-category": "Pages using TemplateFunc",
+		"templatefunc-too-few-parameters": "Error: some parameters appear to be wanting.",
+		"templatefunc-mustache-template-not-found": "Error: $1.mustache not found.",
+		"templatefunc-cannot-find-template": "Error: could not find template in source."
+}
