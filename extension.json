@@ -1,10 +1,10 @@
 {
 	"name": "TemplateFunc",
-	"version": "0.1",
+	"version": "0.2",
 	"type": "parserhook",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]",
-		"Marijn van Wezel (WSRecursiveParser)"
+		"Marijn van Wezel (RecursiveParser)"
 	],
 	"url": "https://github.com/a-g-van-hamel-foundation/TemplateFunc",
 	"descriptionmsg": "tf-desc",

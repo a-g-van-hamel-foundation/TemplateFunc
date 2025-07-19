@@ -16,7 +16,7 @@ class SpecialTemplateFunc extends \SpecialPage {
 	private $extensionName;
 	private $extensionJsonSource;
 
-    public function __construct( $name = 'TemplateFunc' ) {
+	public function __construct( $name = 'TemplateFunc' ) {
 		parent::__construct( $name );
 		global $IP;
 		$mainConfig = MediaWikiServices::getInstance()->getMainConfig();
@@ -25,7 +25,7 @@ class SpecialTemplateFunc extends \SpecialPage {
 		$this->extensionJsonSource = $IP . $extAssets . "/" . $this->extensionName . "/extension.json";
 	}
 
-    function isExpensive() {
+	function isExpensive() {
 		return false;
 	}
 
@@ -46,8 +46,8 @@ class SpecialTemplateFunc extends \SpecialPage {
 
 	}
 
-    private function getSpecialPageContent() {
-        
+	private function getSpecialPageContent() {
+
 		$version = $this->getExtensionVersion();
 		$res = $this->getInfoTable();
 
@@ -55,8 +55,8 @@ class SpecialTemplateFunc extends \SpecialPage {
 		//$res .= "<h2>Parameters</h2>" . TF\TFUtils::showArrayAsJsonInWikiText( $tfConvertInfo );
 		$res .= "<h2>Parameters</h2>";
 		$res .= "<h3><code>#tf-convert</code></h3>" . $this->buildList( $tfConvertInfo["parameters"] );
-        return $res;
-    }
+		return $res;
+	}
 
 	private function getInfoTable() {
 		$str = "<table class='table'>";

@@ -15,7 +15,7 @@ class TFUtils {
 	}
 
 	/**
-	 * Get the raw, unparsed content of a page 
+	 * Get the raw, unparsed content of a page
 	 * (current revision; main slot by default)
 	 */
 	public static function getRawContentFromPage( string $fullpagename, string $slot = "main" ) {
@@ -81,6 +81,26 @@ class TFUtils {
 			$str = "<pre lang='json'>" . $encoded . "</pre>";
 		}
 		return $str;
+	}
+
+	/**
+	 * Simple check if array is associative or sequential
+	 * @param array $arr
+	 * @return bool
+	 */
+	public static function isAssociativeArray( array $arr ) {
+		if ( array_keys( $arr ) !== range( 0, count( $arr ) - 1) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param mixed $arr
+	 * @return bool
+	 */
+	public static function areAllArrayElementsStrings( $arr )  {
+		return array_sum(array_map('is_string', $arr)) == count($arr);
 	}
 
 }

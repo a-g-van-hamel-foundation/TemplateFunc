@@ -7,17 +7,21 @@
 
 namespace TF;
 
+use Title;
+use WikiPage;
+use CommentStoreComment;
+
 class TFProcess {
 
 	/**
 	 * @param \WikiPage $wikiPage
 	 * @return void
 	 */
-	public static function doPurge( \WikiPage $wikiPage ): void {
+	public static function doPurge( WikiPage $wikiPage ): void {
 		// Why again?
 		$title = $wikiPage->getTitle()->getFullText();
-		$titleObject = \Title::newFromText( $title );
-		$wikiPage = \WikiPage::factory( $titleObject );		
+		$titleObject = Title::newFromText( $title );
+		$wikiPage = WikiPage::factory( $titleObject );		
 		$wikiPage->doPurge();
 		// self::doNullEdit( $wikiPageObject, $user  );
 		// confif debug
@@ -25,14 +29,14 @@ class TFProcess {
 
 	/**
 	 * Perform a null edit on the page
-	 * @param \WikiPage $wikiPage
+	 * @param WikiPage $wikiPage
 	 * @param mixed $user
 	 * @return void
 	 */
-	public static function doNullEdit( \WikiPage $wikiPage, $user ): void {
+	public static function doNullEdit( WikiPage $wikiPage, $user ): void {
 		$pageUpdater = $wikiPage->newPageUpdater( $user );
 		$result = $pageUpdater->saveRevision(
-			\CommentStoreComment::newUnsavedComment( "" ),
+			CommentStoreComment::newUnsavedComment( "" ),
 			EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY
 		);
 	}

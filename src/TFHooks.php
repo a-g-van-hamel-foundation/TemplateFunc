@@ -7,6 +7,7 @@ use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\InternalParseBeforeLinksHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 # use TF\TFProcess;
+# use MediaWiki\Registration\ExtensionRegistry;
 
 class TFHooks implements
 	ParserFirstCallInitHook,
@@ -59,6 +60,37 @@ class TFHooks implements
 	}
 
 	/**
+	 * Called from PageUpdater::doCreate(), PageUpdater::doModify()
+	 * when revision was inserted due to an edit, file upload, import or page move.
+	 * There is also onPageSaveComplete, but runs a little later. 
+	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/RevisionFromEditComplete
+	 */
+	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ): void {
+		if ( $this->isPFUsed == true ) {
+			$doPurge = \RequestContext::getMain()->getConfig()->get( 'TFDoPurge' );
+			if ( $doPurge ) {
+				$wikiPage->doPurge();
+				// Either a purge or a null edit should do.
+				// TFProcess::doPurge( $wikiPage );
+				// TFProcess::doNullEdit( $wikiPage, $user );
+			}
+		}
+	}
+
+	/**
+	 * Returns true only when the parser function is first invoked.
+	 */
+	private static function isParserFunctionUsed( Parser $parser ): bool {
+		$extData = $parser->getOutput()->getExtensionData( "templateFuncData-pf-counter" );
+		if ( $extData !== null && array_key_exists( "tf-convert", $extData ) ) {
+			$counter = $extData["tf-convert"];
+			$pfIsUsed = ( $counter == 1 ) ? true : false;
+			return $pfIsUsed;
+		}
+		return false;
+	}
+
+	/**
 	 * Add links to special page of AdminLinks extension
 	 * 
 	 * @param ALTree &$adminLinksTree
@@ -98,37 +130,6 @@ class TFHooks implements
 		);
 
 		return true;
-	}
-
-	/**
-	 * Called from PageUpdater::doCreate(), PageUpdater::doModify()
-	 * when revision was inserted due to an edit, file upload, import or page move.
-	 * There is also onPageSaveComplete, but runs a little later. 
-	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/RevisionFromEditComplete
-	 */
-	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ): void {
-		if ( $this->isPFUsed == true ) {
-			$doPurge = \RequestContext::getMain()->getConfig()->get( 'TFDoPurge' );
-			if ( $doPurge ) {
-				$wikiPage->doPurge();
-				// Either a purge or a null edit should do.
-				// TFProcess::doPurge( $wikiPage );
-				// TFProcess::doNullEdit( $wikiPage, $user );
-			}
-		}
-	}
-
-	/**
-	 * Returns true only when the parser function is first invoked.
-	 */
-	private static function isParserFunctionUsed( Parser $parser ): bool {
-		$extData = $parser->getOutput()->getExtensionData( "templateFuncData-pf-counter" );
-		if ( $extData !== null && array_key_exists( "tf-convert", $extData ) ) {
-			$counter = $extData["tf-convert"];
-			$pfIsUsed = ( $counter == 1 ) ? true : false;
-			return $pfIsUsed;
-		}
-		return false;
 	}
 
 }

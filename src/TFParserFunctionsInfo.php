@@ -43,6 +43,9 @@ class TFParserFunctionsInfo {
 			"targettemplate" => [
 				"description" => "Name of the wiki template (without the `Template:` namespace prefix) to pass the data to."
 			],
+			"targetinstancetemplates" => [
+				"description" => "One or multiple mappings for multiple-instance templates nested within their own template instance; in the format 'param1=templatename2,param2=templatename3'. Since v0.7. This can be used for instance, when you have saved JSON data with FlexForm's 'instance' feature."
+			],
 			"targetwidget" => [
 				"description" => "Name of the Smarty widget (without the `Widget:` namespace prefix) to pass the data to. By widget is meant an instance of the parser function <code>#widget</code> from the Widgets extension (https://www.mediawiki.org/wiki/Extension:Widgets)"
 			],

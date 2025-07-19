@@ -8,7 +8,13 @@
 namespace TF;
 
 use MediaWiki\MediaWikiServices;
+use Parser;
+use PPFrame;
+use ParserOutput;
+use Title;
+use Html;
 // use SMW\Parser\RecursiveTextProcessor;
+use ExtensionRegistry;
 
 /**
  * #tf-convert
@@ -29,7 +35,7 @@ class TFParserFunctions {
 	 * Parser function {{#tf-convert:}}
 	 * @todo unify parser functions: runMustacheTemplate
 	 */
-	public function runConvert( \Parser &$parser, \PPFrame $frame, $params ) {
+	public function runConvert( Parser &$parser, PPFrame $frame, $params ) {
 		$parserOutput = $parser->getOutput();
 
 		// Update cache expiry should be done only once on the page
@@ -53,6 +59,7 @@ class TFParserFunctions {
 			"template" => "", // childtemplate // @deprecate?
 			"sourcenode" => null, // @todo - previously also parentparam
 			"targettemplate" => null,
+			"targetinstancetemplates" => null,
 			"targetwidget" => null,
 			"targetmodule" => null,
 			"targetmustache" => null,
@@ -65,7 +72,7 @@ class TFParserFunctions {
 		];
 		// Keep this aligned with order above :
 		$params = $this->extractParams( $frame, $params, $paramsAllowed );
-		list( $page, $slot, $sourceFormat, $sourceTemplate, $parentTemplate, $parentTemplateParam, $childTemplate, $sourceNode, $targetTemplate, $targetWidget, $targetModule, $targetMustacheTemplate, $targetMustacheDir, $target, $data, $indexName, $mode, $action ) = array_values( $params['params'] );
+		list( $page, $slot, $sourceFormat, $sourceTemplate, $parentTemplate, $parentTemplateParam, $childTemplate, $sourceNode, $targetTemplate, $targetInstanceTemplates, $targetWidget, $targetModule, $targetMustacheTemplate, $targetMustacheDir, $target, $data, $indexName, $mode, $action ) = array_values( $params['params'] );
 		$userParams = $params['userparams'];
 
 		// wiki template first
@@ -84,6 +91,7 @@ class TFParserFunctions {
 					? $this->decodeJsonShorthand( $sourceNode )
 					: [];
 				// list( $parentNode, $parentNodeKey, $childNode ) = $this->decodeParamShorthand( $sourceNode );
+
 				// @todo used when checking validity of params
 				$sourceNodeName = null;
 				break;
@@ -104,7 +112,7 @@ class TFParserFunctions {
 		$parserOutput->appendExtensionData( "templateFuncData-pf-counter", "tf-convert" );
 
 		// Get content of source page
-		$titleObj = \Title::newFromText( $page );
+		$titleObj = Title::newFromText( $page );
 		$revisionRecord = $parser->fetchCurrentRevisionRecordOfTitle( $titleObj );
 		$rawPageContent = TFUtils::getRawContentFromTitleObj(
 			$titleObj,
@@ -116,16 +124,28 @@ class TFParserFunctions {
 			return "";
 		}
 
+		// example: param1=templatename1,param2=templatename2
+		$targetInstanceTemplateArr = [];
+		if ( $targetInstanceTemplates !== null ) {
+			// Allows for multiple-instance templates nested within a template instance	
+			foreach( explode( ",", $targetInstanceTemplates ) as $defStr ) {
+				$def = explode( "=", $defStr);
+				if( count($def) > 1 ) {
+					$targetInstanceTemplateArr[ trim($def[0]) ] = trim($def[1]);
+				}
+			}
+		}
+
 		switch( trim( $sourceFormat ) ) {
 			case "template":
 				$templateArray = $this->convertTemplatesToArray( $rawPageContent, $parentTemplate, $parentTemplateParam, $childTemplate );
-				$str = TFConvert::convertArrayToWikiOutput( $templateArray, $sourceFormat, $data, $targetType, $targetName, $targetMustacheDir, $page, $indexName, $userParams );
+				$str = TFConvert::convertArrayToWikiOutput( $templateArray, $sourceFormat, $data, $targetType, $targetName, $targetMustacheDir, $page, $indexName, $userParams, $targetInstanceTemplateArr );
 				break;
 			case "json":
-				$targetName = ( $targetTemplate !== null ) ? $targetTemplate : "";
+				$targetName = $targetTemplate !== null ? $targetTemplate : "";
 				$instancesArr = $this->convertJsonStrToArray( $rawPageContent, $nodePath );
 				$str = ( $instancesArr !== false )
-					? TFConvert::convertArrayToWikiOutput( $instancesArr, $sourceFormat, $data, $targetType, $targetName, $targetMustacheDir, $page, $indexName, $userParams )
+					? TFConvert::convertArrayToWikiOutput( $instancesArr, $sourceFormat, $data, $targetType, $targetName, $targetMustacheDir, $page, $indexName, $userParams, $targetInstanceTemplateArr )
 					: "";
 				break;
 			case "raw":
@@ -134,8 +154,8 @@ class TFParserFunctions {
 		}
 
 		// @todo clean up a bit
-		trim( $str );
-		$enclosedStrRaw = \Html::rawElement( "div", [ "class" => "tf-convert-result" ], trim( $str ) );
+		$str = trim( $str );
+		$enclosedStrRaw = Html::rawElement( "div", [ "class" => "tf-convert-result" ], $str );
 
 		// Some of these options are not officially supported but may be useful when debugging.
 		switch( $mode ) {
@@ -144,7 +164,7 @@ class TFParserFunctions {
 				break;
 			case "unparsed-html":
 			case "raw":
-				//$str = \Html::rawElement( "div", [ "class" => "tf-convert-result--raw" ], $str );
+				//$str = Html::rawElement( "div", [ "class" => "tf-convert-result--raw" ], $str );
 				$res = [ $enclosedStrRaw, 'noparse' => true, 'isHTML' => true ];
 				break;
 			case "unparsed-nohtml":
@@ -158,12 +178,13 @@ class TFParserFunctions {
 				$res = [ $enclosedStrRaw, 'noparse' => false, 'isHTML' => true ];
 				break;
 			case "pre":
-				$str = \Html::rawElement( "pre", [], $str );
+				$str = Html::rawElement( "pre", [], $str );
 				$res = [ $str, 'noparse' => true, 'isHTML' => true ];
 				break;
 			case "lazy":
 				trim( $str );
 				// $str = str_replace( "\n", " ", trim($str) );
+				$this->conditionallyLoadParseRequestModule( $parserOutput );
 				$res = [ $this->lazyParse( $str, $page ), 'noparse' => false, 'isHTML' => true ];
 				break;
 			default:
@@ -171,10 +192,10 @@ class TFParserFunctions {
 					$res = [ $str, 'noparse' => true, 'isHTML' => true ];
 				} elseif ( $sourceFormat == "json" ) {
 					// noparse/isHTML same as Page Forms
-					//$str = \Html::rawElement( "div", [ "class" => "tf-convert-result" ], $str );
+					//$str = Html::rawElement( "div", [ "class" => "tf-convert-result" ], $str );
 					$res = [ $enclosedStrRaw, 'noparse' => false, 'isHTML' => true ];
 				} else {
-					//$str = \Html::rawElement( "div", [ "class" => "tf-convert-result" ], $str );
+					//$str = Html::rawElement( "div", [ "class" => "tf-convert-result" ], $str );
 					$res = [ $enclosedStrRaw, 'noparse' => false, 'isHTML' => false ];
 				}
 		}
@@ -218,8 +239,6 @@ class TFParserFunctions {
 		return $childTemplateArray;
 	}
 
-	
-
 	/**
 	 * Converts string of JSON instances to array.
 	 * @todo Consider moving to TFConvert??
@@ -240,7 +259,8 @@ class TFParserFunctions {
 			// Looking for nested items in array
 			foreach( $nodePath as $node ) {
 				if ( array_key_exists( $node, $instancesArr ) ) {
-					$instancesArr[] = $instancesArr[$node];
+					// Fixed in v0.2
+					$instancesArr = $instancesArr[$node];
 				}
 			}
 		}
@@ -453,7 +473,7 @@ class TFParserFunctions {
 		$triggerId = $loadmoreId = $paginationId = false;
 		$random = rand(10000,99999);
 		$attributes = [
-			"class" => "cr-parse-request ",
+			"class" => "pr-parse-request cr-parse-request ",
 			"id" => "cr-parse-request-conversion-" . $random,
 			"data-fullpagename" => $fullpagename,
 			"data-trigger" => "afterpageload",
@@ -477,6 +497,27 @@ class TFParserFunctions {
 		}
 		$res = "<div {$attrStr}></div>";	
 		return $res;
+	}
+
+	/**
+	 * If ParseRequest extension is installed, add the required
+	 * module ("ext.PR.parse") to enable deferred mode.
+	 * 
+	 * @param ParserOutput $parserOutput
+	 * @return void
+	 */
+	private function conditionallyLoadParseRequestModule( $parserOutput ) {		
+		if ( ExtensionRegistry::getInstance()->isLoaded( "ParseRequest" ) ) {
+			$extDataForPR = $parserOutput->getExtensionData( "templatefunc-rl-parserequest" );
+			$RL = MediaWikiServices::getInstance()->getResourceLoader();
+			if ( $extDataForPR == null && $RL->isModuleRegistered( "ext.PR.parse" ) ) {
+				$parserOutput->appendExtensionData(
+					"templatefunc-rl-parserequest",
+					sha1( rand(10000,99999) )
+				);
+				$parserOutput->addModules( [ "ext.PR.parse" ] );
+			}
+		}
 	}
 
 }

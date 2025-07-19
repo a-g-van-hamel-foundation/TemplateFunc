@@ -21,7 +21,8 @@ class TFConvert {
 		string $mustacheTemplateDir = null,
 		string $fullpagename = "",
 		string $indexName = "index",
-		array $userParams = []
+		array $userParams = [],
+		mixed $targetInstanceTemplates = []
 	): mixed {
 		set_time_limit( 10 );
 		if ($templateArr == null) {
@@ -41,6 +42,12 @@ class TFConvert {
 				$to = ( array_key_exists( 1, $pair )) ? trim( $pair[1] ) : "";
 				$dataArr[$from] = $to;
 			}
+		}
+
+		//@todo - is this necessarily right?
+		if( TFUtils::isAssociativeArray( $templateArr ) ) {
+			// If array is associative, add it as instance in array
+			$templateArr = [ $templateArr ];
 		}
 
 		// The array created from templates is a little bit different.
@@ -66,7 +73,7 @@ class TFConvert {
 				$str = TFUtils::showArrayAsJsonInWikiText( $newInstances );
 				break;
 			default:
-				$str = self::convertArrayToWikiInstances( $newInstances, $targetType, $targetName, false, " " );
+				$str = self::convertArrayToWikiInstances( $newInstances, $targetType, $targetName, false, " ", $targetInstanceTemplates );
 		}
 
 		return ( $str !== false ) ? $str : "";
@@ -83,11 +90,11 @@ class TFConvert {
 	 * @return array
 	 */
 	private static function createNewInstancesFromTemplateArr(
-		array|null $templateArr,
-		array|null $dataArr,
-		string|null $fullpagename = "",
-		string|null $indexName = "index",
-		array|null $userParams = []
+		mixed $templateArr,
+		mixed $dataArr,
+		mixed $fullpagename = "",
+		mixed $indexName = "index",
+		mixed $userParams = []
 	): array {
 		$newInstances = [];
 		foreach( $templateArr as $i => $instance ) {
@@ -129,11 +136,11 @@ class TFConvert {
 	 * @return array
 	 */
 	private static function createNewInstancesFromJsonArr(
-		array|null $templateArr,
-		array|null $dataArr,
-		string|null $fullpagename = "",
-		string|null $indexName = "",
-		array|null $userParams = []
+		mixed $templateArr,
+		mixed $dataArr,
+		mixed $fullpagename = "",
+		mixed $indexName = "",
+		mixed $userParams = []
 	): array {
 		$newInstances = [];
 		foreach ( $templateArr as $i => $instance ) {
@@ -164,9 +171,10 @@ class TFConvert {
 	/**
 	 * Convert associative array to series of instances (raw string, unparsed)
 	 * including instances of templates and parser functions
-	 * @param array $templateArr
+	 * @param array $templateArr - expected to be a sequential array
 	 * @param string $templateName
 	 * @param bool $returnArray
+	 * @todo @param null|array $instanceTemplates - [ "items" => "Show item", etc, ... ]
 	 * @return string|array
 	 */
 	public static function convertArrayToWikiInstances(
@@ -174,7 +182,8 @@ class TFConvert {
 		string $targetType,
 		string $targetName,
 		bool $returnArray = false,
-		string $paramSep = " "
+		string $paramSep = " ",
+		mixed $instanceTemplates = []
 	): string|array {
 		$str = $prefix = "";
 		$instances = [];
@@ -189,19 +198,52 @@ class TFConvert {
 			$prefix = "{{#subobject:";
 		}
 		$suffix = "}}";
-		foreach ($templateArr as $instance) {
+
+		foreach ( $templateArr as $instance ) {
 			set_time_limit( 10 );
 			//$instanceStr = $prefix . $targetName . "\n";
 			$instanceStr = $prefix . $targetName . $paramSep;
 			foreach ($instance as $k => $v) {
-				//$instanceStr .= "|{$k}={$v}" . "\n";
-				$instanceStr .= "|{$k}={$v}" . $paramSep;
+				$dataType = gettype( $v );
+				if( $dataType === "string" || $dataType === "integer" ) {
+					$instanceStr .= "|{$k}={$v}" . $paramSep;
+				} elseif( $dataType === "array" ) {
+					// @todo Handle with care
+					$subStr = self::handleSubArray( $k, $v, ";", $instanceTemplates );
+					if ( gettype($subStr ) == "string" ) {
+						$instanceStr .= "|{$k}={$subStr}" . $paramSep;
+					}
+				}
 			}
 			$instanceStr .= $suffix;
 			$str .= $instanceStr;
 			$instances[] = $instanceStr;
 		}
 		return $returnArray ? $instances : $str;
+	}
+
+	/**
+	 * Helper for convertArrayToWikiInstances
+	 * @param mixed $k
+	 * @param array $arr
+	 * @param string $sep
+	 * @param array|null $instanceTemplates
+	 * @return array|string
+	 */
+	private static function handleSubArray( $k, array $arr, $sep = ";", mixed $instanceTemplates = [] ) {
+		if ( TFUtils::isAssociativeArray( $arr ) ) {
+			$arr = [ $arr ];
+		}
+		if ( TFUtils::areAllArrayElementsStrings( $arr ) ) {
+			return implode( $sep, $arr );
+		}
+		// Check if a child template was set for parameter name in parent template
+		// Scenario: [ [ "foo1" => "bar1", ... ], [ ... ], [ ... ] ]
+		if ( $instanceTemplates !== null && in_array( $k, array_keys($instanceTemplates) ) ) {
+			$templateName = $instanceTemplates[$k];
+			return self::convertArrayToWikiInstances( $arr, "template", $templateName, false, " ", [] );
+		}
+		return "";
 	}
 
 }
