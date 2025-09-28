@@ -1,6 +1,6 @@
 {
 	"name": "TemplateFunc",
-	"version": "0.2",
+	"version": "0.3",
 	"type": "parserhook",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]",
@@ -22,18 +22,11 @@
 		"TFAliases": "TF.i18n.aliases.php"
 	},
 	"AutoloadNamespaces": {
-		"TF\\": "src/"
+		"TF\\": "src/",
+		"TF\\Special": "src/Special/"
 	},
 	"AutoloadClasses": {
-		"TFHooks": "src/TFHooks.php",
-		"TFParserFunctions": "src/TFParserFunctions.php",
-		"TFParserFunctionsInfo": "src/TFParserFunctionsInfo.php",
-		"TFConvert": "src/TFConvert.php",
-		"TFMustache": "src/TFMustache.php",
-		"TFProcess": "src/TFProcess.php",
-		"TFUtils": "src/TFUtils.php",
-		"WSRecursiveParser": "src/WSRecursiveParser.php",
-		"SpecialTemplateFunc": "src/Special/SpecialTemplateFunc.php"
+		"TFHooks": "src/TFHooks.php"
 	},
 	"HookHandlers": {
 		"main": {
@@ -47,7 +40,7 @@
 		"AdminLinks": "TFHooks::addToAdminLinks"
 	},
 	"SpecialPages": {
-		"TemplateFunc": "SpecialTemplateFunc"
+		"TemplateFunc": "TF\\Special\\SpecialTemplateFunc"
 	},
 	"config_prefix": "wg",
 	"config": {
@@ -60,7 +53,6 @@
 			"description": "The path to the templates directory. It is recommended to use a dedicated directory rather than the default location."
 		}
 	},
-
 	"TrackingCategories": [
 		"templatefunc-tracking-category"
 	],

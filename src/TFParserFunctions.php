@@ -15,6 +15,9 @@ use Title;
 use Html;
 // use SMW\Parser\RecursiveTextProcessor;
 use ExtensionRegistry;
+use TF\TFMustache;
+use TF\TFUtils;
+use TF\TFConvert;
 
 /**
  * #tf-convert
@@ -188,7 +191,9 @@ class TFParserFunctions {
 				$res = [ $this->lazyParse( $str, $page ), 'noparse' => false, 'isHTML' => true ];
 				break;
 			default:
-				if ( $sourceFormat == "raw" ) {
+				if ( $sourceFormat == "raw" && $mode === "raw" ) {
+					$res = [ $str, 'noparse' => true, 'isHTML' => false ];
+				} elseif ( $sourceFormat == "raw" ) {
 					$res = [ $str, 'noparse' => true, 'isHTML' => true ];
 				} elseif ( $sourceFormat == "json" ) {
 					// noparse/isHTML same as Page Forms
@@ -407,6 +412,8 @@ class TFParserFunctions {
 		} elseif ( $targetModule !== null ) {
 			// Lua module
 			$targetType = "module";
+			// name{{!}}functionname ! 
+			// @todo consider additional argument = cleaner
 			$targetName = $targetModule;
 		} elseif( $targetMustacheTemplate !== null ) {
 			$targetType = "mustache";

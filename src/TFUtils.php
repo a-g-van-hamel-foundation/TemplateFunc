@@ -2,37 +2,39 @@
 
 namespace TF;
 
+use Title;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\RevisionRecord;
+use ExtensionRegistry;
 
 class TFUtils {
 
 	public static function getRawContentFromPageID( $id ) {
-		$titleObj = \Title::newFromID( $id, 0 );
+		$titleObj = Title::newFromID( $id, 0 );
 		$res = self::getRawContentFromTitleObj( $titleObj, false );
 		return $res;
 	}
 
 	/**
-	 * Get the raw, unparsed content of a page
+	 * Get the raw, unparsed content of a page 
 	 * (current revision; main slot by default)
 	 */
 	public static function getRawContentFromPage( string $fullpagename, string $slot = "main" ) {
-		$titleObj = \Title::newFromText ( $fullpagename );
+		$titleObj = Title::newFromText ( $fullpagename );
 		$res = self::getRawContentFromTitleObj( $titleObj, false, $slot );
 		return $res;
 	}
 
 	/**
 	 * Get source code of content associated with Title
-	 * @param \Title $titleObj
+	 * @param Title $titleObj
 	 * @param mixed $revisionRecord
 	 * @param mixed $slot
 	 * @return string|bool
 	 */
 	public static function getRawContentFromTitleObj(
-		\Title $titleObj,
+		Title $titleObj,
 		$revisionRecord = false,
 		$slot = "main"
 	): string|bool {
@@ -70,7 +72,7 @@ class TFUtils {
 	 * Copied from the CODECSResources extension.
 	 */
 	public static function showArrayAsJsonInWikiText( array $arr ): string {
-		$registry = \ExtensionRegistry::getInstance();
+		$registry = ExtensionRegistry::getInstance();
 		$encoded = json_encode( $arr, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
 		if ( $encoded == false ) {
 			return "";

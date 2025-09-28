@@ -1,4 +1,5 @@
 <?php
+
 /**
  * List basic information about the extension
  *
@@ -7,11 +8,14 @@
  * @ingroup
  */
 
-//namespace TF\Special;
+namespace TF\Special;
 
 use MediaWiki\MediaWikiServices;
+use SpecialPage;
+use RequestContext;
+use TF\TFParserFunctionsInfo;
 
-class SpecialTemplateFunc extends \SpecialPage {
+class SpecialTemplateFunc extends SpecialPage {
 
 	private $extensionName;
 	private $extensionJsonSource;
@@ -34,7 +38,7 @@ class SpecialTemplateFunc extends \SpecialPage {
 	}
 
     public function execute( $subPage ) {
-		$outputPage = \RequestContext::getMain()->getOutput();
+		$outputPage = RequestContext::getMain()->getOutput();
 		$res = '';
 		$this->setHeaders();
 
@@ -51,7 +55,7 @@ class SpecialTemplateFunc extends \SpecialPage {
 		$version = $this->getExtensionVersion();
 		$res = $this->getInfoTable();
 
-		$tfConvertInfo = TF\TFParserFunctionsInfo::getTFConvertInfo();
+		$tfConvertInfo = TFParserFunctionsInfo::getTFConvertInfo();
 		//$res .= "<h2>Parameters</h2>" . TF\TFUtils::showArrayAsJsonInWikiText( $tfConvertInfo );
 		$res .= "<h2>Parameters</h2>";
 		$res .= "<h3><code>#tf-convert</code></h3>" . $this->buildList( $tfConvertInfo["parameters"] );

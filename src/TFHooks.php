@@ -7,7 +7,12 @@ use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\InternalParseBeforeLinksHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 # use TF\TFProcess;
+use ExtensionRegistry;
 # use MediaWiki\Registration\ExtensionRegistry;
+use ALTree;
+use ALSection;
+use ALRow;
+use ALItem;
 
 class TFHooks implements
 	ParserFirstCallInitHook,

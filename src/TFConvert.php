@@ -6,6 +6,9 @@
 
 namespace TF;
 
+use TF\TFUtils;
+use TF\TFMustache;
+
 class TFConvert {
 
 	/**
@@ -24,7 +27,6 @@ class TFConvert {
 		array $userParams = [],
 		mixed $targetInstanceTemplates = []
 	): mixed {
-		set_time_limit( 10 );
 		if ($templateArr == null) {
 			return "";
 		}
@@ -98,7 +100,6 @@ class TFConvert {
 	): array {
 		$newInstances = [];
 		foreach( $templateArr as $i => $instance ) {
-			set_time_limit( 10 );
 			$newInstances[$i] = [];
 			// Additional content
 			$newInstances[$i]['fullpagename'] = $fullpagename;
@@ -144,7 +145,6 @@ class TFConvert {
 	): array {
 		$newInstances = [];
 		foreach ( $templateArr as $i => $instance ) {
-			set_time_limit( 10 );
 			$newInstances[$i] = [];
 			// Additional
 			$newInstances[$i]['fullpagename'] = $fullpagename;
@@ -187,28 +187,34 @@ class TFConvert {
 	): string|array {
 		$str = $prefix = "";
 		$instances = [];
-		if ( $targetType == "template" ) {
+		if ( $targetType === "template" ) {
 			$prefix = "{{";
-		} elseif ( $targetType == "widget" ) {
+		} elseif ( $targetType === "widget" ) {
 			$prefix = "{{#widget:";
-		} elseif ( $targetType == "module" ) {
+		} elseif ( $targetType === "module" ) {
 			$prefix = "{{#invoke:";
-		} elseif ( $targetType == "subobject" ) {
+			$n = explode( "{{!}}", $targetName );
+			$targetName = $n[0];
+			$functionName = array_key_exists( 1, $n ) ? $n[1] : null;
+		} elseif ( $targetType === "subobject" ) {
 			// Afterthought: not implemented, but note they're nameless
 			$prefix = "{{#subobject:";
 		}
 		$suffix = "}}";
 
 		foreach ( $templateArr as $instance ) {
-			set_time_limit( 10 );
 			//$instanceStr = $prefix . $targetName . "\n";
 			$instanceStr = $prefix . $targetName . $paramSep;
+			if ( $targetType === "module" ) {
+				$instanceStr .= "|" . $functionName;
+			}
 			foreach ($instance as $k => $v) {
 				$dataType = gettype( $v );
 				if( $dataType === "string" || $dataType === "integer" ) {
 					$instanceStr .= "|{$k}={$v}" . $paramSep;
 				} elseif( $dataType === "array" ) {
 					// @todo Handle with care
+					// @todo allow for customising separator
 					$subStr = self::handleSubArray( $k, $v, ";", $instanceTemplates );
 					if ( gettype($subStr ) == "string" ) {
 						$instanceStr .= "|{$k}={$subStr}" . $paramSep;

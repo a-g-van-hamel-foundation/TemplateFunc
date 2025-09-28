@@ -14,7 +14,7 @@ use CommentStoreComment;
 class TFProcess {
 
 	/**
-	 * @param \WikiPage $wikiPage
+	 * @param WikiPage $wikiPage
 	 * @return void
 	 */
 	public static function doPurge( WikiPage $wikiPage ): void {

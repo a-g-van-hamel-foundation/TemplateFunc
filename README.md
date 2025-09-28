@@ -7,7 +7,7 @@ The extension enables two new parser functions:
 * <code>#tf-mustache</code> - a dedicated parser function for converting template data to Mustache templates.
 
 <h2>Parser function <code>#tf-convert</code> </h2>
-To fetch and move around structured data, this parser function goes through the following steps. It reads data from the intended wiki page, provided that it holds data using either a wiki template or a JSON string Internally, it transforms the data to an array in PHP. Finally, it assigns data, optionally along with custom data, to one of the supported target formats below. In addition, this parser function also lets you fetch the raw, unprocessed content of a wiki page. 
+To fetch and move around structured data, this parser function goes through the following steps. It reads data from the intended wiki page, provided that it holds data using either a wiki template or a JSON string Internally, it transforms the data to an array in PHP. Finally, it assigns data, optionally along with custom data, to one of the supported target formats below. In addition, this parser function also lets you fetch the raw, unprocessed content of a wiki page.
 
 <h3>Formats</h3>
 * Source formats: wiki template structure, JSON
@@ -74,7 +74,7 @@ As a result, the target template will receive data for the following parameters:
     - <code>fullpagename</code> - equals the output of the FULLPAGENAME magic word.
     - optionally, any number of parameters whose names begin with <code>userparam</code> (e.g. <code>userparam1</code>, <code>userparamTheme</code>, etc.) - may be used for adding custom data, such as the name of the page in our example. They can also be used to influence the behaviour of the target (template, module, etc.), which can be helpful if it should be flexible and adaptable to the different contexts in which it may be used and re-used.
 
-How to use the source template and its target template is up to you. You could use the former for presentation and the latter for storing subobjects. You can also use the source template as a data container only, without any output, and use the target template as your vehicle for both presentation and data storage. 
+How to use the source template and its target template is up to you. You could use the former for presentation and the latter for storing subobjects. You can also use the source template as a data container only, without any output, and use the target template as your vehicle for both presentation and data storage.
 
 <h2>Mustache</h2>
 Mustache templates are just files stored on the server rather than wiki pages. If you use them, it is recommended to reserve a dedicated location for them and override the default value of the config setting <code>$wgMustacheTemplatesDir</code> ("/extensions/TemplateFunc/src/templates"). This setting can be overridden directly by setting <code>targetmustachedir</code> (in <code>#tf-convert</code>) or <code>templatedir</code> (in <code>#tf-mustache</code>) to a different location.
@@ -98,6 +98,8 @@ Leave out the file extension (<code>.mustache</code>) from the template name.
 https://codecs.vanhamel.nl/Show:Lab/TemplateFunc - project notes with some further examples
 
 <h2>Version history</h2>
+
+- 0.3. Fixed support for Lua modules using `modulename{{!}}functionname` notation. Removed stray lines intended for development only. Minor code cleanup.
 - 0.2. Added 'targetinstancetemplates' parameter for converting nested arrays to multiple-instance templates as children of the parent template. Supports 'lazy' mode if the ParseRequest extension is installed. Some code cleanup and minor fixes.
 - 0.1. First public release (March 2025).
-- 0.1-beta (2023/24). Replaced my own methods for detecting templates with Marijn van Wezel's WSRecursiveParser (now https://github.com/WikibaseSolutions/mediawiki-template-parser), which is doing much the same thing and covers some edge cases that had not been on my mind, such as wiki table syntax. 
+- 0.1-beta (2023/24). Replaced my own methods for detecting templates with Marijn van Wezel's WSRecursiveParser (now https://github.com/WikibaseSolutions/mediawiki-template-parser), which is doing much the same thing and covers some edge cases that had not been on my mind, such as wiki table syntax.
