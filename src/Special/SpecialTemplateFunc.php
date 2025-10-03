@@ -10,9 +10,14 @@
 
 namespace TF\Special;
 
+if ( version_compare( MW_VERSION, "1.41", "<" ) ) {
+	class_alias( "SpecialPage", "MediaWiki\SpecialPage\SpecialPage" );
+}
+
 use MediaWiki\MediaWikiServices;
-use SpecialPage;
-use RequestContext;
+//use SpecialPage;
+use MediaWiki\SpecialPage\SpecialPage;
+use MediaWiki\Context\RequestContext;
 use TF\TFParserFunctionsInfo;
 
 class SpecialTemplateFunc extends SpecialPage {

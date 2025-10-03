@@ -1,14 +1,39 @@
 <?php
 
-use MediaWiki\MediaWikiServices;
-use MediaWiki\OutputPage;
+namespace TF;
+
+if ( version_compare( MW_VERSION, '1.39.4', '<' ) ) {
+	class_alias( 'Title', 'MediaWiki\Title\Title' );
+	// ? class_alias( "ExtensionRegistry", "MediaWiki\Registration\ExtensionRegistry" );
+}
+if ( version_compare( MW_VERSION, "1.40", "<" ) ) {
+	class_alias( "Html", "MediaWiki\Html\Html" );
+	class_alias( "TemplateParser", "MediaWiki\Html\TemplateParser" );
+	class_alias( "CommentStoreComment", "MediaWiki\Comment\CommentStoreComment" );
+}
+if ( version_compare( MW_VERSION, "1.42", "<" ) ) {
+	class_alias( "Parser", "MediaWiki\Parser\Parser" );
+	class_alias( "ParserOutput", "MediaWiki\Parser\ParserOutput" );
+	class_alias( "RequestContext", "MediaWiki\Context\RequestContext" );
+}
+if ( version_compare( MW_VERSION, "1.43", "<" ) ) {
+	class_alias( "PPFrame", "MediaWiki\Parser\PPFrame" );	
+}
+
+use MediaWiki\Parser\Parser;
+use MediaWiki\Parser\PPFrame;
+//use MediaWiki\MediaWikiServices;
+//use MediaWiki\OutputPage;
 use MediaWiki\WikiPage;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\InternalParseBeforeLinksHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
+
 # use TF\TFProcess;
-use ExtensionRegistry;
-# use MediaWiki\Registration\ExtensionRegistry;
+use TF\TFParserFunctions;
+
+# Non-compound names no effect
+use MediaWiki\Registration\ExtensionRegistry;
 use ALTree;
 use ALSection;
 use ALRow;
@@ -35,16 +60,16 @@ class TFHooks implements
 		$flags = Parser::SFH_OBJECT_ARGS;
 		$parser->setFunctionHook(
 			'tf-convert',
-			function( \Parser $parser, \PPFrame $frame, array $args ) {
-					$pf = new TF\TFParserFunctions;
+			function( Parser $parser, PPFrame $frame, array $args ) {
+					$pf = new TFParserFunctions;
 					return $pf->runConvert( $parser, $frame, $args );
 			},
 			$flags
 		);
 		$parser->setFunctionHook(
 			'tf-mustache',
-			function( \Parser $parser, \PPFrame $frame, array $args ) {
-					$pf = new TF\TFParserFunctions;
+			function( Parser $parser, PPFrame $frame, array $args ) {
+					$pf = new TFParserFunctions;
 					return $pf->runMustacheTemplate( $parser, $frame, $args );
 			},
 			$flags
@@ -72,7 +97,7 @@ class TFHooks implements
 	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ): void {
 		if ( $this->isPFUsed == true ) {
-			$doPurge = \RequestContext::getMain()->getConfig()->get( 'TFDoPurge' );
+			$doPurge = RequestContext::getMain()->getConfig()->get( 'TFDoPurge' );
 			if ( $doPurge ) {
 				$wikiPage->doPurge();
 				// Either a purge or a null edit should do.

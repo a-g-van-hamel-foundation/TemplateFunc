@@ -2,11 +2,11 @@
 
 namespace TF;
 
-use Title;
+use MediaWiki\Title\Title;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\RevisionRecord;
-use ExtensionRegistry;
+use MediaWiki\Registration\ExtensionRegistry;
 
 class TFUtils {
 

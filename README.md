@@ -99,6 +99,7 @@ https://codecs.vanhamel.nl/Show:Lab/TemplateFunc - project notes with some furth
 
 <h2>Version history</h2>
 
+- 0.4. First steps to make the extension compatible with later versions of MW.
 - 0.3. Fixed support for Lua modules using `modulename{{!}}functionname` notation. Removed stray lines intended for development only. Minor code cleanup.
 - 0.2. Added 'targetinstancetemplates' parameter for converting nested arrays to multiple-instance templates as children of the parent template. Supports 'lazy' mode if the ParseRequest extension is installed. Some code cleanup and minor fixes.
 - 0.1. First public release (March 2025).

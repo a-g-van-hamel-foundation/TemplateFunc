@@ -1,6 +1,6 @@
 {
 	"name": "TemplateFunc",
-	"version": "0.3",
+	"version": "0.4",
 	"type": "parserhook",
 	"author": [
 		"[https://codecs.vanhamel.nl Dennis Groenewegen]",
@@ -26,18 +26,17 @@
 		"TF\\Special": "src/Special/"
 	},
 	"AutoloadClasses": {
-		"TFHooks": "src/TFHooks.php"
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "TFHooks"
+			"class": "TF\\TFHooks"
 		}
     },
 	"Hooks": {
 		"ParserFirstCallInit": "main",
 		"InternalParseBeforeLinks": "main",
 		"RevisionFromEditComplete": "main",
-		"AdminLinks": "TFHooks::addToAdminLinks"
+		"AdminLinks": "TF\\TFHooks::addToAdminLinks"
 	},
 	"SpecialPages": {
 		"TemplateFunc": "TF\\Special\\SpecialTemplateFunc"

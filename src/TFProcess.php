@@ -7,9 +7,9 @@
 
 namespace TF;
 
-use Title;
-use WikiPage;
-use CommentStoreComment;
+use MediaWiki\Title\Title;
+use MediaWiki\WikiPage;
+use MediaWiki\Comment\CommentStoreComment;
 
 class TFProcess {
 

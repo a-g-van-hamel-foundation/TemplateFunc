@@ -8,13 +8,13 @@
 namespace TF;
 
 use MediaWiki\MediaWikiServices;
-use Parser;
-use PPFrame;
-use ParserOutput;
-use Title;
-use Html;
+use MediaWiki\Parser\Parser;
+use MediaWiki\Parser\PPFrame;
+use MediaWiki\Parser\ParserOutput;
+use MediaWiki\Title\Title;
+use MediaWiki\Html\Html;
 // use SMW\Parser\RecursiveTextProcessor;
-use ExtensionRegistry;
+use MediaWiki\Registration\ExtensionRegistry;
 use TF\TFMustache;
 use TF\TFUtils;
 use TF\TFConvert;

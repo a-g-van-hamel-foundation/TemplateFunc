@@ -2,8 +2,8 @@
 
 namespace TF;
 
-use RequestContext;
-use TemplateParser;
+use MediaWiki\Context\RequestContext;
+use MediaWiki\Html\TemplateParser;
 
 /**
  * Functions for using Mustache templates.
