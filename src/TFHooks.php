@@ -28,6 +28,7 @@ use MediaWiki\WikiPage;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\InternalParseBeforeLinksHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
+use MediaWiki\Context\RequestContext;
 
 # use TF\TFProcess;
 use TF\TFParserFunctions;
