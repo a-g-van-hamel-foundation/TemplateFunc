@@ -7,6 +7,7 @@
 
 namespace TF;
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\WikiPage;
 use MediaWiki\Comment\CommentStoreComment;
@@ -18,10 +19,11 @@ class TFProcess {
 	 * @return void
 	 */
 	public static function doPurge( WikiPage $wikiPage ): void {
-		// Why again?
+		// @todo Why go through this again?
 		$title = $wikiPage->getTitle()->getFullText();
 		$titleObject = Title::newFromText( $title );
-		$wikiPage = WikiPage::factory( $titleObject );		
+		$wikiPage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $titleObject );
+
 		$wikiPage->doPurge();
 		// self::doNullEdit( $wikiPageObject, $user  );
 		// confif debug
