@@ -112,7 +112,11 @@ class TFHooks implements
 	 * Returns true only when the parser function is first invoked.
 	 */
 	private static function isParserFunctionUsed( Parser $parser ): bool {
-		$extData = $parser->getOutput()->getExtensionData( "templateFuncData-pf-counter" );
+		$parserOutput = $parser->getOutput();
+		if ( $parserOutput === null ) {
+			return false;
+		}
+		$extData = $parserOutput->getExtensionData( "templateFuncData-pf-counter" );
 		if ( $extData !== null && array_key_exists( "tf-convert", $extData ) ) {
 			$counter = $extData["tf-convert"];
 			$pfIsUsed = ( $counter == 1 ) ? true : false;
