@@ -79,10 +79,11 @@ class TFParserFunctionsInfo {
 			"mode" => [
 				"description" => "Not normally used, but the output can be rendered in alternative formats (raw, pre, lazy).",
 				"options" => [
-					"normal" => "Default.",
+					"normal" => "Default. Returns content nested inside an HTML wrapper (div)",
+					"wikitext" => "Returns content without HTML wrapper",
 					"raw" => "Get the unparsed content.",
 					"pre" => "Get preformatted content between `pre` tags. May be useful for debugging.",
-					"lazy" => "Defer generating content until after page load. Experimentally supported if CODECSResources is installed."
+					"lazy" => "Defer generating content until after page load. Experimentally supported if CODECSResources is installed.",
 				],
 				"default" => "normal",
 				"required" => false
