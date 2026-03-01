@@ -190,6 +190,10 @@ class TFParserFunctions {
 				$this->conditionallyLoadParseRequestModule( $parserOutput );
 				$res = [ $this->lazyParse( $str, $page ), 'noparse' => false, 'isHTML' => true ];
 				break;
+			case "wikitext":
+				// Does not use enclosing div so the resulting text can be reused.
+				$res = [ $str, 'noparse' => false, 'isHTML' => false ];
+				break;
 			default:
 				if ( $sourceFormat == "raw" && $mode === "raw" ) {
 					$res = [ $str, 'noparse' => true, 'isHTML' => false ];
