@@ -2,35 +2,18 @@
 
 namespace TF;
 
-if ( version_compare( MW_VERSION, '1.39.4', '<' ) ) {
-	class_alias( 'Title', 'MediaWiki\Title\Title' );
-	// ? class_alias( "ExtensionRegistry", "MediaWiki\Registration\ExtensionRegistry" );
-}
-if ( version_compare( MW_VERSION, "1.40", "<" ) ) {
-	class_alias( "Html", "MediaWiki\Html\Html" );
-	class_alias( "TemplateParser", "MediaWiki\Html\TemplateParser" );
-	class_alias( "CommentStoreComment", "MediaWiki\Comment\CommentStoreComment" );
-}
-if ( version_compare( MW_VERSION, "1.42", "<" ) ) {
-	class_alias( "Parser", "MediaWiki\Parser\Parser" );
-	class_alias( "ParserOutput", "MediaWiki\Parser\ParserOutput" );
-	class_alias( "RequestContext", "MediaWiki\Context\RequestContext" );
-}
 if ( version_compare( MW_VERSION, "1.43", "<" ) ) {
 	class_alias( "PPFrame", "MediaWiki\Parser\PPFrame" );	
 }
 
 use MediaWiki\Parser\Parser;
 use MediaWiki\Parser\PPFrame;
-//use MediaWiki\MediaWikiServices;
-//use MediaWiki\OutputPage;
-use MediaWiki\WikiPage;
+// use MediaWiki\WikiPage;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\InternalParseBeforeLinksHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Context\RequestContext;
-
-# use TF\TFProcess;
+// use TF\TFProcess;
 use TF\TFParserFunctions;
 
 # Non-compound names no effect
@@ -112,11 +95,7 @@ class TFHooks implements
 	 * Returns true only when the parser function is first invoked.
 	 */
 	private static function isParserFunctionUsed( Parser $parser ): bool {
-		$parserOutput = $parser->getOutput();
-		if ( $parserOutput === null ) {
-			return false;
-		}
-		$extData = $parserOutput->getExtensionData( "templateFuncData-pf-counter" );
+		$extData = $parser->getOutput()->getExtensionData( "templateFuncData-pf-counter" );
 		if ( $extData !== null && array_key_exists( "tf-convert", $extData ) ) {
 			$counter = $extData["tf-convert"];
 			$pfIsUsed = ( $counter == 1 ) ? true : false;
